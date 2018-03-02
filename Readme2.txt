@@ -21,3 +21,9 @@ b2. If gsl_rng_default_seed =!= 0: gsl_seed=gsl_rng_default_seed (see 4. below)
 4. System environment: GSL_RNG_TYPE and GSL_RNG_SEED
 - Without any environment variables, GSL uses the initial defaults, an mt19937 generator with a default seed of gsl_rng_default_seed=0.
 - See also: https://www.gnu.org/software/gsl/manual/html_node/Random-number-environment-variables.html
+
+5. Version of GSL
+
+The version of GSL that includes support for sampling from a multivariate normal distibution is:
+
+https://fossies.org/linux/misc/gsl-2.4.tar.gz/
