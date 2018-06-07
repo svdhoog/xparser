@@ -5,6 +5,8 @@
 
 #include "header.h"
 
+#define CONST_BUFFER_SIZE 1000000
+
 /** \fn void read_int_static_array(char * buffer, int * j, int ** int_static_array)
  * \brief Reads integer static array.
  */
@@ -12,7 +14,7 @@ int read_int_static_array(char * buffer, int /*@unused@*/ buffer_size, int * j, 
 {
 	int arraycount = 0;
 	int array_k;
-	char arraydata[100000];
+	char arraydata[CONST_BUFFER_SIZE];
 	
 	while(buffer[(*j)] != '{')
 	{
@@ -55,7 +57,7 @@ int read_float_static_array(char * buffer, int /*@unused@*/ buffer_size, int * j
 {
 	int arraycount = 0;
 	int array_k;
-	char arraydata[100000];
+	char arraydata[CONST_BUFFER_SIZE];
 
 	while(buffer[(*j)] != '{')
 	{
@@ -98,7 +100,7 @@ int read_double_static_array(char * buffer, int /*@unused@*/ buffer_size, int * 
 {
 	int arraycount = 0;
 	int array_k;
-	char arraydata[100000];
+	char arraydata[CONST_BUFFER_SIZE];
 
 	while(buffer[(*j)] != '{')
 	{
@@ -163,7 +165,7 @@ int read_int_dynamic_array(char * buffer, int /*@unused@*/ buffer_size, int * j,
 {
 	int arraycount = 0;
 	int array_k;
-	char arraydata[100000];
+	char arraydata[CONST_BUFFER_SIZE];
 
 	while(buffer[(*j)] != '{')
 	{
@@ -200,7 +202,7 @@ int read_float_dynamic_array(char * buffer, int /*@unused@*/ buffer_size, int * 
 {
 	int arraycount = 0;
 	int array_k;
-	char arraydata[100000];
+	char arraydata[CONST_BUFFER_SIZE];
 
 	while(buffer[(*j)] != '{')
 	{
@@ -237,7 +239,7 @@ int read_double_dynamic_array(char * buffer, int /*@unused@*/ buffer_size, int *
 {
 	int arraycount = 0;
 	int array_k;
-	char arraydata[100000];
+	char arraydata[CONST_BUFFER_SIZE];
 
 	while(buffer[(*j)] != '{')
 	{
@@ -295,7 +297,7 @@ int read_char_dynamic_array(char * buffer, int /*@unused@*/ buffer_size, int * j
 int read_$name(char * buffer, int /*@unused@*/ buffer_size, int * j, $name * temp_datatype)
 {
 	<?if single_vars?>int array_k;
-	char arraydata[100000];<?end if?>
+	char arraydata[CONST_BUFFER_SIZE];<?end if?>
 	<?if has_arrays_or_adts?>int rc;<?end if?>
 	
 	while(buffer[(*j)] != '{')
@@ -405,7 +407,7 @@ int readEnvironmentXML(char * location)
 {
 	FILE * file;
 	char c = '\0';
-	char buffer[100000];
+	char buffer[CONST_BUFFER_SIZE];
 	int index = 0;
 	int in_environment = 0;
 	<?foreach envvar?>int in_$name = 0;
@@ -450,7 +452,13 @@ int readEnvironmentXML(char * location)
 		else
 		{
 			buffer[index] = c;
-			if(index < 999) index++;
+			if(index < CONST_BUFFER_SIZE-1) index++;
+            else
+            {
+                printf("Error: environment reading buffer too small\n");
+                printf("%s\n", buffer);
+                exit(0);
+            }            
 		}
 	}
 	/* Close file */
@@ -469,7 +477,7 @@ int readAgentXML(char * location,
 {
 	FILE * file;
 	char c = '\0';
-	char buffer[100000];
+	char buffer[CONST_BUFFER_SIZE];
 	char agentname[10000];
 	int index = 0;
 	int j; /* Index for reading arrays */
@@ -626,10 +634,10 @@ int readAgentXML(char * location,
 		else
 		{
 			buffer[index] = c;
-			if(index < 99999) index++;
+            if(index < CONST_BUFFER_SIZE-1) index++;
 			else
 			{
-				printf("Error: agent reading buffer too small\n");
+                printf("Error: agent reading buffer too small\nAt index: %d Buffer size: %d", index, CONST_BUFFER_SIZE);
 				printf("%s\n", buffer);
 				exit(0);
 			}
@@ -680,7 +688,7 @@ void readprepartitionedinitialstates(char * fileroot, char * filelocation, int *
 	FILE *file;
 	/* Char and char buffer for reading file to */
 	char c = '\0';
-	char buffer[100000];
+	char buffer[CONST_BUFFER_SIZE];
 	char FLAME_location[10000];
 	char FLAME_format[10000];
 	char FLAME_type[10000];
@@ -709,7 +717,7 @@ void readprepartitionedinitialstates(char * fileroot, char * filelocation, int *
 	int node_number=0;
 	int agent_count = 0;
 	/* Filename must be constructed from fileroot argument */ 
-	char filename[100000];
+	char filename[1000000];
 	/* Following variables required by readAgentXML. */
 	double cloud_data[6];
 	int flag = 0; /* Set flag=0 so readAgentXML reads and adds agents and does nothing else. */
@@ -992,7 +1000,7 @@ void readinitialstates(char * filename, char * filelocation, int * itno, double 
 	FILE *file;
 	/* Char and char buffer for reading file to */
 	char c = '\0';
-	char buffer[100000];
+	char buffer[CONST_BUFFER_SIZE];
 	char FLAME_location[10000];
 	char FLAME_format[10000];
 	char FLAME_type[10000];
