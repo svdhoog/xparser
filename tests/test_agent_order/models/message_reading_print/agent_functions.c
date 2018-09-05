@@ -11,6 +11,14 @@ int send(void)
 }
 
 
+
+int print_id(void)
+{
+	fprintf(stderr, "\nIT %d ID %d prints own ID", iteration_loop, ID);
+
+	return 0;
+}
+
 int read(void)
 {
 	fprintf(stderr, "\nIT %d ID %d reads ID messages:\t", iteration_loop, ID);

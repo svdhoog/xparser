@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export TESTS="basic_agent_order message_reading"
+export TESTS="basic_agent_order message_reading message_reading_print"
 
 export BASE=$PWD
 

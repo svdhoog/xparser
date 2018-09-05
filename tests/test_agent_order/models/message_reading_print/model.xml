@@ -24,13 +24,23 @@
      <name>send</name>
      <description></description>
      <currentState>start_Agent</currentState>
-     <nextState>read</nextState>
+     <nextState>print_id</nextState>
      <inputs/>
      <outputs>
       <output>
        <messageName>info</messageName>
       </output>
      </outputs>
+    </function>
+
+
+    <function>
+     <name>print_id</name>
+     <description></description>
+     <currentState>print_id</currentState>
+     <nextState>read</nextState>
+     <inputs/>
+     <outputs/>
     </function>
 
     <function>

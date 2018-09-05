@@ -7,7 +7,7 @@ cd $FLAME_XPARSER_DIR
 
 echo "Now here: $PWD"
 
-export TESTS="basic_agent_order message_reading"
+export TESTS="basic_agent_order message_reading message_reading_print"
 
 for i in $TESTS; do
 

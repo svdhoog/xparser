@@ -1,26 +1,23 @@
 Test basic_agent_order: 
-------------------------
+
 IT 1 ID 6 prints own ID
 IT 1 ID 5 prints own ID
 IT 1 ID 4 prints own ID
 IT 1 ID 3 prints own ID
 IT 1 ID 2 prints own ID
 IT 1 ID 1 prints own ID
-------------------------
 IT 2 ID 6 prints own ID
 IT 2 ID 5 prints own ID
 IT 2 ID 4 prints own ID
 IT 2 ID 3 prints own ID
 IT 2 ID 2 prints own ID
 IT 2 ID 1 prints own ID
-------------------------
 IT 3 ID 6 prints own ID
 IT 3 ID 5 prints own ID
 IT 3 ID 4 prints own ID
 IT 3 ID 3 prints own ID
 IT 3 ID 2 prints own ID
 IT 3 ID 1 prints own ID
-------------------------
 IT 4 ID 6 prints own ID
 IT 4 ID 5 prints own ID
 IT 4 ID 4 prints own ID
