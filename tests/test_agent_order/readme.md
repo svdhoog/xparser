@@ -7,10 +7,10 @@ This test is meant for checking agent order of function execution.
 Observations:
 
 1. The original order of agents in the 0.xml file is inverted due to the xml read-in function.
-2. If the agents only print out their IDs (no messages send and read), then the order is maintained.
-3. If messages are send and read, then the order gets inverted upon activating the read function, and then remains that order also for the next add-message functions, until the next message loop.
+2. If the agents only print out their IDs (no messages send and read), then this inversed order is maintained throughout.
+3. If messages are send and read, then the order gets inverted again upon activating a read function, and then remains that order also for the next add-message functions, until the next function that has a read message loop.
 4. If, in addition, a function is inserted between the write and read functions, then the order is again reversed.
-5. Each new iteration starts with the same agent order as at the end of the previous iteration.
+5. Each new iteration starts with the same agent order as it was at the end of the previous iteration. (So it is not true that the agent order gets reset to its reversed read-in order from 0.xml)
 
 Hypothesis:
 
