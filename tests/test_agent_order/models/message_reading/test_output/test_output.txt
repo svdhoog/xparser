@@ -1,0 +1,86 @@
+Test message_reading: 
+------------------------
+IT 1 ID 6 adds ID message
+IT 1 ID 5 adds ID message
+IT 1 ID 4 adds ID message
+IT 1 ID 3 adds ID message
+IT 1 ID 2 adds ID message
+IT 1 ID 1 adds ID message
+------------------------
+IT 1 ID 1 prints own ID
+IT 1 ID 2 prints own ID
+IT 1 ID 3 prints own ID
+IT 1 ID 4 prints own ID
+IT 1 ID 5 prints own ID
+IT 1 ID 6 prints own ID
+------------------------
+IT 1 ID 6 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 5 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 4 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 3 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 2 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 1 reads ID messages:	6 5 4 3 2 1 
+------------------------
+IT 2 ID 6 adds ID message
+IT 2 ID 5 adds ID message
+IT 2 ID 4 adds ID message
+IT 2 ID 3 adds ID message
+IT 2 ID 2 adds ID message
+IT 2 ID 1 adds ID message
+------------------------
+IT 2 ID 1 prints own ID
+IT 2 ID 2 prints own ID
+IT 2 ID 3 prints own ID
+IT 2 ID 4 prints own ID
+IT 2 ID 5 prints own ID
+IT 2 ID 6 prints own ID
+------------------------
+IT 2 ID 6 reads ID messages:	6 5 4 3 2 1 
+IT 2 ID 5 reads ID messages:	6 5 4 3 2 1 
+IT 2 ID 4 reads ID messages:	6 5 4 3 2 1 
+IT 2 ID 3 reads ID messages:	6 5 4 3 2 1 
+IT 2 ID 2 reads ID messages:	6 5 4 3 2 1 
+IT 2 ID 1 reads ID messages:	6 5 4 3 2 1 
+------------------------
+IT 3 ID 6 adds ID message
+IT 3 ID 5 adds ID message
+IT 3 ID 4 adds ID message
+IT 3 ID 3 adds ID message
+IT 3 ID 2 adds ID message
+IT 3 ID 1 adds ID message
+------------------------
+IT 3 ID 1 prints own ID
+IT 3 ID 2 prints own ID
+IT 3 ID 3 prints own ID
+IT 3 ID 4 prints own ID
+IT 3 ID 5 prints own ID
+IT 3 ID 6 prints own ID
+------------------------
+IT 3 ID 6 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 5 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 4 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 3 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 2 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 1 reads ID messages:	6 5 4 3 2 1 
+------------------------
+IT 4 ID 6 adds ID message
+IT 4 ID 5 adds ID message
+IT 4 ID 4 adds ID message
+IT 4 ID 3 adds ID message
+IT 4 ID 2 adds ID message
+IT 4 ID 1 adds ID message
+------------------------
+IT 4 ID 1 prints own ID
+IT 4 ID 2 prints own ID
+IT 4 ID 3 prints own ID
+IT 4 ID 4 prints own ID
+IT 4 ID 5 prints own ID
+IT 4 ID 6 prints own ID
+------------------------
+IT 4 ID 6 reads ID messages:	6 5 4 3 2 1 
+IT 4 ID 5 reads ID messages:	6 5 4 3 2 1 
+IT 4 ID 4 reads ID messages:	6 5 4 3 2 1 
+IT 4 ID 3 reads ID messages:	6 5 4 3 2 1 
+IT 4 ID 2 reads ID messages:	6 5 4 3 2 1 
+IT 4 ID 1 reads ID messages:	6 5 4 3 2 1 
+------------------------
