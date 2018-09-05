@@ -23,6 +23,7 @@ Test model:
 
 Output:
 
+```
 ------------------------
 IT 1 ID 6
 IT 1 ID 5
@@ -52,6 +53,7 @@ IT 4 ID 3
 IT 4 ID 2
 IT 4 ID 1
 ------------------------
+```
 
 3. However, if messages are send and read, the order is again inverted upon activating the read function (function with message input).
 Also note that the agent order at the start of a new iteration is the same as at the end of the previous iteration, so it does not revert to the original order it has after reading from the 0.xml.
@@ -61,60 +63,61 @@ Test model:
 
 Output:
 
+```
 ------------------------
-IT 1 ID 6 adds info message
-IT 1 ID 5 adds info message
-IT 1 ID 4 adds info message
-IT 1 ID 3 adds info message
-IT 1 ID 2 adds info message
-IT 1 ID 1 adds info message
-IT 1 ID: 1 reads info messages:     6 5 4 3 
-IT 1 ID: 2 reads info messages:     6 5 4 3 
-IT 1 ID: 3 reads info messages:     6 5 4 3 
-IT 1 ID: 4 reads info messages:     6 5 4 3 
-IT 1 ID: 5 reads info messages:     6 5 4 3 
-IT 1 ID: 6 reads info messages:     6 5 4 3 
+IT 1 ID 6 adds ID message
+IT 1 ID 5 adds ID message
+IT 1 ID 4 adds ID message
+IT 1 ID 3 adds ID message
+IT 1 ID 2 adds ID message
+IT 1 ID 1 adds ID message
+IT 1 ID 1 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 2 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 3 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 4 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 5 reads ID messages:	6 5 4 3 2 1 
+IT 1 ID 6 reads ID messages:	6 5 4 3 2 1 
 ------------------------
-IT 2 ID 1 adds info message
-IT 2 ID 2 adds info message
-IT 2 ID 3 adds info message
-IT 2 ID 4 adds info message
-IT 2 ID 5 adds info message
-IT 2 ID 6 adds info message
-IT 2 ID: 6 reads info messages:     3 4 5 6 
-IT 2 ID: 5 reads info messages:     3 4 5 6 
-IT 2 ID: 4 reads info messages:     3 4 5 6 
-IT 2 ID: 3 reads info messages:     3 4 5 6 
-IT 2 ID: 2 reads info messages:     3 4 5 6 
-IT 2 ID: 1 reads info messages:     3 4 5 6 
+IT 2 ID 1 adds ID message
+IT 2 ID 2 adds ID message
+IT 2 ID 3 adds ID message
+IT 2 ID 4 adds ID message
+IT 2 ID 5 adds ID message
+IT 2 ID 6 adds ID message
+IT 2 ID 6 reads ID messages:	1 2 3 4 5 6 
+IT 2 ID 5 reads ID messages:	1 2 3 4 5 6 
+IT 2 ID 4 reads ID messages:	1 2 3 4 5 6 
+IT 2 ID 3 reads ID messages:	1 2 3 4 5 6 
+IT 2 ID 2 reads ID messages:	1 2 3 4 5 6 
+IT 2 ID 1 reads ID messages:	1 2 3 4 5 6 
 ------------------------
-IT 3 ID 6 adds info message
-IT 3 ID 5 adds info message
-IT 3 ID 4 adds info message
-IT 3 ID 3 adds info message
-IT 3 ID 2 adds info message
-IT 3 ID 1 adds info message
-IT 3 ID: 1 reads info messages:     6 5 4 3 
-IT 3 ID: 2 reads info messages:     6 5 4 3 
-IT 3 ID: 3 reads info messages:     6 5 4 3 
-IT 3 ID: 4 reads info messages:     6 5 4 3 
-IT 3 ID: 5 reads info messages:     6 5 4 3 
-IT 3 ID: 6 reads info messages:     6 5 4 3 
+IT 3 ID 6 adds ID message
+IT 3 ID 5 adds ID message
+IT 3 ID 4 adds ID message
+IT 3 ID 3 adds ID message
+IT 3 ID 2 adds ID message
+IT 3 ID 1 adds ID message
+IT 3 ID 1 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 2 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 3 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 4 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 5 reads ID messages:	6 5 4 3 2 1 
+IT 3 ID 6 reads ID messages:	6 5 4 3 2 1 
 ------------------------
-IT 4 ID 1 adds info message
-IT 4 ID 2 adds info message
-IT 4 ID 3 adds info message
-IT 4 ID 4 adds info message
-IT 4 ID 5 adds info message
-IT 4 ID 6 adds info message
-IT 4 ID: 6 reads info messages:     3 4 5 6 
-IT 4 ID: 5 reads info messages:     3 4 5 6 
-IT 4 ID: 4 reads info messages:     3 4 5 6 
-IT 4 ID: 3 reads info messages:     3 4 5 6 
-IT 4 ID: 2 reads info messages:     3 4 5 6 
-IT 4 ID: 1 reads info messages:     3 4 5 6 
+IT 4 ID 1 adds ID message
+IT 4 ID 2 adds ID message
+IT 4 ID 3 adds ID message
+IT 4 ID 4 adds ID message
+IT 4 ID 5 adds ID message
+IT 4 ID 6 adds ID message
+IT 4 ID 6 reads ID messages:	1 2 3 4 5 6 
+IT 4 ID 5 reads ID messages:	1 2 3 4 5 6 
+IT 4 ID 4 reads ID messages:	1 2 3 4 5 6 
+IT 4 ID 3 reads ID messages:	1 2 3 4 5 6 
+IT 4 ID 2 reads ID messages:	1 2 3 4 5 6 
+IT 4 ID 1 reads ID messages:	1 2 3 4 5 6 
 ------------------------
-
+```
 
 4. Now we add an additional function inbetween the write-read functions that only prints out the agent IDs.
 
@@ -123,7 +126,7 @@ Test model:
 
 Output:
 
-Test message_reading: 
+```
 ------------------------
 IT 1 ID 6 adds ID message
 IT 1 ID 5 adds ID message
@@ -209,5 +212,6 @@ IT 4 ID 3 reads ID messages:	6 5 4 3 2 1
 IT 4 ID 2 reads ID messages:	6 5 4 3 2 1 
 IT 4 ID 1 reads ID messages:	6 5 4 3 2 1 
 ------------------------
+```
  
 5. Note that here, again, each new iteration starts with the same agent order as at the end of the previous iteration.
