@@ -461,8 +461,8 @@ void set_$name($type <?if dynamic_array?>* <?end if?><?if static_array?>*<?end i
 {
 <?foreach xagent?><?if allvar_in_agent?>	if(current_xmachine->xmachine_$name)
 	{
-		assert($allvar_name < FLAME_DOUBLE_MAX);
-		assert($allvar_name > FLAME_DOUBLE_MIN);
+		//assert($allvar_name < FLAME_DOUBLE_MAX);
+		//assert($allvar_name > FLAME_DOUBLE_MIN);
 		(*current_xmachine->xmachine_$name).$allvar_name = $allvar_name;
 	}
 <?end if?><?end foreach?>}
