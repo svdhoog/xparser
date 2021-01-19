@@ -14,15 +14,13 @@ LIBMBOARD_DIR = /upb/departments/pc2/users/e/etace004/build/libmboard
 LIBMBOARD_INC = $(LIBMBOARD_DIR)/include
 LIBMBOARD_LIB = $(LIBMBOARD_DIR)/lib
 
-<?if gsl_lib?>
-#===================================================
+<?if gsl_lib?>#===================================================
 # Change this variable for the location of the 
 # GNU Scientific Library (GSL) installation
 #===================================================
-GSL_DIR = /cm/shared/apps/pc2/GSL/2.4
+GSL_DIR = /usr/local
 GSL_LIB = $(GSL_DIR)/lib
-GSL_INC = $(GSL_DIR)/include
-<?end if?>
+GSL_INC = $(GSL_DIR)/include<?end if?>
 
 #====================================================
 # Change these for your compiler/loader
@@ -34,26 +32,20 @@ SERIAL_LOADER	= gcc
 PARALLEL_LOADER	= mpif77
 
 DEFINES		=
-<?if gsl_lib?>
-DEFINES		+= -DGSL_LIB
-<?end if?>
+<?if gsl_lib?>DEFINES		+= -DGSL_LIB<?end if?>
 
 # C Compiler
 CC      = <?if serial?>$(SERIAL_CCOMP)<?end if?><?if parallel?>$(PARALLEL_CCOMP)<?end if?>
 CFLAGS  =  -I$(LIBMBOARD_INC) ${DEFINES}
 <?if gsl_lib?>CFLAGS +=  -I$(GSL_INC)<?end if?>
-
 <?if debug?>CFLAGS += -std=c99 -Wall -D_DEBUG_MODE -g<?end if?>
 <?if final?>CFLAGS += -O3<?end if?>
-
 LD       = <?if serial?>$(SERIAL_LOADER)<?end if?><?if parallel?>$(PARALLEL_LOADER)<?end if?>
 
 LDFLAGS  = -L$(LIBMBOARD_LIB)
-<?if gsl_lib?>
-LDFLAGS  += -L$(GSL_LIB)
+<?if gsl_lib?>LDFLAGS  += -L$(GSL_LIB)
 
-LIBS	+= -lgsl -lgslcblas
-<?end if?>
+LIBS	+= -lgsl -lgslcblas<?end if?>
 LIBS    += <?if serial?>-lmboard_s<?if debug?>d<?end if?> <?end if?><?if parallel?>-lmboard_p<?if debug?>d<?end if?> <?end if?> -lm
 
 #FLAME source files
