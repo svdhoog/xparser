@@ -57,7 +57,7 @@ LIBS	+= -lgsl -lgslcblas
 LIBS    += <?if serial?>-lmboard_s<?if debug?>d<?end if?> <?end if?><?if parallel?>-lmboard_p<?if debug?>d<?end if?> <?end if?> -lm
 
 #FLAME source files
-FLAME   = main.c memory.c xml.c messageboards.c partitioning.c rules.c timing.c
+FLAME   = main.c memory.c parquet.cpp messageboards.c partitioning.c rules.c timing.c
 
 #FLAME auxilary files
 AUX 	= stategraph.dot stategraph_colour.dot process_order_graph.dot Doxyfile latex.tex
