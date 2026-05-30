@@ -529,7 +529,16 @@ void readprepartitionedinitialstates(char * filename, char * filelocation, int *
 <?end if?>
 void readinitialstates(char * filename, char * filelocation, int * itno, double cloud_data[],
 					   int partition_method, int flag);
-void saveiterationdata(int iteration_number);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void saveiterationdata_xml(int iteration_number);
+void saveiterationdata_parquet(int iteration_number);
+
+#ifdef __cplusplus
+}
+#endif
 <?foreach datatype?>
 void free_$name($name * temp);
 void free_$name_static_array($name * array, int size);

@@ -15,37 +15,42 @@ LIBMBOARD_INC = $(LIBMBOARD_DIR)/include
 LIBMBOARD_LIB = $(LIBMBOARD_DIR)/lib
 
 #====================================================
-# Change these for your compliler/loaded
+# Change these for your compiler/loader
 #====================================================
 SERIAL_CCOMP	= gcc
 PARALLEL_CCOMP	= mpicc
 
-SERIAL_LOADER	= gcc
-PARALLEL_LOADER	= mpif77
+# We explicitly use g++ for linking when using Parquet
+SERIAL_LOADER	= g++
+PARALLEL_LOADER	= mpicxx
 
 DEFINES		=
 <?if gsl_lib?>DEFINES		+= -DGSL_LIB<?end if?>
-#DEFINES	+= -DSTART_END 
-#DEFINES	+= -DGRAPHICS
 
-# C Compiler
+# Compilers
 CC      = <?if serial?>$(SERIAL_CCOMP)<?end if?><?if parallel?>$(PARALLEL_CCOMP)<?end if?>
-CFLAGS  =  -I$(LIBMBOARD_INC) ${DEFINES}
-<?if debug?>CFLAGS += -std=c99 -Wall -D_DEBUG_MODE -g<?end if?>
+CXX     = g++
+CFLAGS  = -I$(LIBMBOARD_INC) ${DEFINES}
+
+# Ensure C++17 properties are cleanly targeted across build optimization sets
+<?if debug?>CFLAGS += -Wall -D_DEBUG_MODE -g<?end if?>
 <?if final?>CFLAGS += -O3<?end if?>
 
-LD       = <?if serial?>$(SERIAL_LOADER)<?end if?><?if parallel?>$(PARALLEL_LOADER)<?end if?>
+# CXX Specific flags for our Parquet file
+CXXFLAGS = -std=c++17 -O3 -I$(LIBMBOARD_INC) ${DEFINES}
+
+LD      = <?if serial?>$(SERIAL_LOADER)<?end if?><?if parallel?>$(PARALLEL_LOADER)<?end if?>
 
 LDFLAGS  = -L$(LIBMBOARD_LIB)
 <?if gsl_lib?>
 LIBS	+= -lgsl -lgslcblas
 <?end if?>
-LIBS    += <?if serial?>-lmboard_s<?if debug?>d<?end if?> <?end if?><?if parallel?>-lmboard_p<?if debug?>d<?end if?> <?end if?> -lm
+LIBS    += <?if serial?>-lmboard_s<?if debug?>d<?end if?> <?end if?><?if parallel?>-lmboard_p<?if debug?>d<?end if?> <?end if?> -lm -larrow -lparquet
 
-#FLAME source files
-FLAME   = main.c memory.c xml.c messageboards.c partitioning.c rules.c timing.c
+# FLAME source files (Includes both legacy XML and our new Parquet engine)
+FLAME   = main.c memory.c xml.c parquet.cpp messageboards.c partitioning.c rules.c timing.c
 
-#FLAME auxilary files
+# FLAME auxiliary files
 AUX 	= stategraph.dot stategraph_colour.dot process_order_graph.dot Doxyfile latex.tex
 
 # FLAME generated model files
@@ -54,7 +59,8 @@ HEADERS = header.h low_primes.h mboard.h <?foreach xagent?> $name_agent_header.h
 
 DEPS    = Makefile header.h low_primes.h
 
-OBJECTS = $(SOURCES:.c=.o) $(FLAME:.c=.o)
+# Correctly maps source strings to object configurations dynamically
+OBJECTS = $(patsubst %.c,%.o,$(filter %.c,$(SOURCES) $(FLAME))) $(patsubst %.cpp,%.o,$(filter %.cpp,$(FLAME)))
 EXECUTABLE = main
 RM = rm -f
 
@@ -65,8 +71,13 @@ $(EXECUTABLE): $(OBJECTS)
 
 $(OBJECTS): $(DEPS)
 
-.c.o:
+# Standard rule pattern for building pure C simulation models
+%.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
+
+# Standard rule pattern for building our C++ Parquet engine module
+%.o: %.cpp
+	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 clean:
 	$(RM) $(OBJECTS) $(EXECUTABLE) $(EXECUTABLE).exe 
@@ -75,8 +86,9 @@ vclean:
 format:
 	astyle -A3 $(SOURCES)
 	for file in $(patsubst %.c,%.h, $(SOURCES)) ; do \
-	echo $$file ; \
-	astyle -A3 $$file ; \
+		echo $$file ; \
+		astyle -A3 $$file ; \
 	done 
 print:
 	a2ps -R -f10 --column=1 $(SOURCES)
+	

@@ -5,6 +5,9 @@
 #include "header.h"
 #include <time.h>
 
+#define FLAME_TIMER_LAYERS 0
+#define FLAME_TIMER_IO 0
+
 <?if gsl_lib?>
 #ifdef GSL_LIB
 #include <gsl/gsl_rng.h>
@@ -18,6 +21,9 @@ unsigned long int gsl_seed;
 
 #define COMPACT_PRINTOUT_P_THRESHOLD 8
 
+/* Set inputpath as global variable */
+char inputpath[1000];
+
 /** \fn int main(int argc, char * argv[])
  * \brief Main program loop.
  * \param argc Argument count.
@@ -26,11 +32,10 @@ unsigned long int gsl_seed;
 int main(int argc, char * argv[])
 {
 	/* Timing variables */
-	double start, stop, interval;
+	double start, stop, interval, layer_interval, io_interval;
 	FILE *file;
 	char data[100];
 	char logfilepath[1000];
-	char inputpath[1000];
 	char * c;
 	int lastd = 0;
 	int i;
@@ -509,8 +514,13 @@ if(argc < 2)
 /* Start iteration function */
 	start_iteration();
 #endif
-		interval = get_time();
-
+		interval = get_time(); 		 /* Start timer for iteration */
+		
+		if(FLAME_TIMER_LAYERS)
+		{
+			layer_interval = get_time(); /* Start timer for layer 1 */
+		}
+		
 		/* Print out iteration number */
 		<?if parallel?>
         if (totalnodes <= COMPACT_PRINTOUT_P_THRESHOLD)
@@ -619,7 +629,8 @@ if(argc < 2)
 		}
 		<?end foreach?>
 		
-<?foreach layer?><?if debug?><?foreach branching_state?>	/* DEBUG: States with branching functions */
+<?foreach layer?>
+<?if debug?><?foreach branching_state?>	/* DEBUG: States with branching functions */
 		current_xmachine_$agent_name_holder = $agent_name_$name_state->agents;
 		while(current_xmachine_$agent_name_holder)
 		{
@@ -870,8 +881,28 @@ if(argc < 2)
     
 <?end foreach?>
 <?end foreach?>
-/* End of layer number $number */
+if(FLAME_TIMER_LAYERS)
+{
+	/* Save layer time to log file (log.xml)*/<?if parallel?>if(node_number == 0)
+		{<?end if?>
+	if((file = fopen(logfilepath, "a"))==NULL)
+	{
+		printf("Error: cannot open file '%s' for writing\n", logfilepath);
+		exit(0);
+	}
+	(void)fputs("    <layer><no>", file);
+	sprintf(data, "%i", $number);
+	(void)fputs(data, file);
+	(void)fputs("</no><time>", file);
+	sprintf(data, "%d", (int)((get_time() - layer_interval) * 1000) );
+	(void)fputs(data, file);
+	(void)fputs("</time></layer>\n", file);
+	(void)fclose(file);
+	<?if parallel?>}<?end if?>/* End of layer number $number */
 
+	layer_interval = get_time(); /* Start timer for next layer */
+}
+/* Start of next layer */
 /* Clear message boards that have finished being used
  * and sync complete if doing late sync complete */
 <?foreach message?>
@@ -940,7 +971,11 @@ if(FLAME_$name_message_board_read == 0)
 <?end foreach?>
 	if(iteration_loop%output_frequency == output_offset)
 	{
-		saveiterationdata(iteration_loop);
+		//XML output
+		//saveiterationdata_xml(iteration_loop); 
+		
+		//Parquet output
+		saveiterationdata_parquet(iteration_loop);
 	}
 <?foreach xagent?><?foreach state?>
 	/*printf("$agent_name_$name_state->count = %d\n", $agent_name_$name_state->count);*/
@@ -959,30 +994,55 @@ if(FLAME_$name_message_board_read == 0)
 <?end foreach?><?end foreach?>
     if(iteration_loop%output_frequency == output_offset)
     {
-        saveiterationdata(iteration_loop);
+		if(FLAME_TIMER_IO)
+		{
+	        /* Start timer for disk I/O */
+			io_interval = get_time();
+		}
+
+		//XML output
+		//saveiterationdata_xml(iteration_loop); 
+		
+		//Parquet output
+		saveiterationdata_parquet(iteration_loop);
+
+		if(FLAME_TIMER_IO)
+		{
+			/* Save I/O time to log file */<?if parallel?>		if(node_number == 0)
+			{<?end if?>
+			if((file = fopen(logfilepath, "a"))==NULL)
+			{
+				printf("Error: cannot open file '%s' for writing\n", logfilepath);
+				exit(0);
+			}
+			(void)fputs("<disk_io>", file);
+			(void)fputs("<time>", file);
+			sprintf(data, "%03d", (int)((get_time() - io_interval) * 1000) );
+			(void)fputs(data, file);
+			(void)fputs("</time></disk_io>\n", file);
+			(void)fclose(file);<?if parallel?>		}<?end if?>
+		}
     }
 <?foreach enditfunc?>
 		/* End of iteration code */
 		$code<?end foreach?>
-		/* Calculate if any agents need to jump S.P. */
-		/* propagate_agents(); */
-	/* Save iteration time to log file */
-<?if parallel?>		if(node_number == 0)
-		{<?end if?>
-		if((file = fopen(logfilepath, "a"))==NULL)
-		{
-			printf("Error: cannot open file '%s' for writing\n", logfilepath);
-			exit(0);
-		}
-		(void)fputs("<iteration><no>", file);
-		sprintf(data, "%i", iteration_loop);
-		(void)fputs(data, file);
-		(void)fputs("</no><time>", file);
-		sprintf(data, "%d", (int)((get_time() - interval) * 1000) );
-		(void)fputs(data, file);
-		(void)fputs("</time></iteration>\n", file);
-		(void)fclose(file);
-<?if parallel?>		}<?end if?>
+	/* Calculate if any agents need to jump S.P. */
+	/* propagate_agents(); */
+	
+	/* Save iteration time to log file */<?if parallel?>if(node_number == 0)		{<?end if?>
+	if((file = fopen(logfilepath, "a"))==NULL)
+	{
+		printf("Error: cannot open file '%s' for writing\n", logfilepath);
+		exit(0);
+	}
+	(void)fputs("<iteration><no>", file);
+	sprintf(data, "%i", iteration_loop);
+	(void)fputs(data, file);
+	(void)fputs("</no><time>", file);
+	sprintf(data, "%d", (int)((get_time() - interval) * 1000) );
+	(void)fputs(data, file);
+	(void)fputs("</time></iteration>\n", file);
+	(void)fclose(file);<?if parallel?>		}<?end if?>
 
 #ifdef START_END
 /* End iteration function */
@@ -991,7 +1051,7 @@ if(FLAME_$name_message_board_read == 0)
 	}
 
 #ifdef START_END
-/* End simualtion function */
+/* End simulation function */
 	end_simulation();
 #endif
 
