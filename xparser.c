@@ -279,11 +279,6 @@ int main(int argc, char * argv[])
     strcat(tmpl_name, "xml.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
     strcpy(filename, directory);
-    strcat(filename, "parquet.cpp");
-    strcpy(tmpl_name, tmpl_directory);
-    strcat(tmpl_name, "parquet.tmpl");
-    parseTemplate(filename, tmpl_name, modeldata);
-    strcpy(filename, directory);
     strcat(filename, "main.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "main.tmpl");
@@ -327,6 +322,13 @@ int main(int argc, char * argv[])
     strcat(filename, "rules.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "rules.tmpl");
+    parseTemplate(filename, tmpl_name, modeldata);
+
+    /* Parquet */
+    strcpy(filename, directory);
+    strcat(filename, "parquet.cpp");
+    strcpy(tmpl_name, tmpl_directory);
+    strcat(tmpl_name, "parquet.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
 
     printf("\n");

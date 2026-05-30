@@ -1,94 +1,66 @@
-# Makefile template file for FLAME
-#
-# FLAME is the FLAME source files
-# SOURCE is the user source files
-#
-# The assumption is that the user only provides C files
-# and a model files <file>.xml
-#
-#===================================================
-# Change this variable for the location of the 
-# Message Board Library installation
-#===================================================
-LIBMBOARD_DIR = /usr/local
-LIBMBOARD_INC = $(LIBMBOARD_DIR)/include
-LIBMBOARD_LIB = $(LIBMBOARD_DIR)/lib
+# --------------------------------------------------------------------------
+# FLAME AUTOMATED GENERATION MAKEFILE TEMPLATE WITH PARQUET SERIALIZATION
+# --------------------------------------------------------------------------
 
-#====================================================
-# Change these for your compiler/loader
-#====================================================
-SERIAL_CCOMP	= gcc
-PARALLEL_CCOMP	= mpicc
-
-# We explicitly use g++ for linking when using Parquet
-SERIAL_LOADER	= g++
-PARALLEL_LOADER	= mpicxx
-
-DEFINES		=
-<?if gsl_lib?>DEFINES		+= -DGSL_LIB<?end if?>
-
-# Compilers
-CC      = <?if serial?>$(SERIAL_CCOMP)<?end if?><?if parallel?>$(PARALLEL_CCOMP)<?end if?>
+# 1. Compiler and Tool Chain Configurations
+CC      = gcc
 CXX     = g++
-CFLAGS  = -I$(LIBMBOARD_INC) ${DEFINES}
+CFLAGS  = -Wall -O3 -std=c11
+CXXFLAGS = -Wall -O3 -std=c++17
 
-# Ensure C++17 properties are cleanly targeted across build optimization sets
-<?if debug?>CFLAGS += -Wall -D_DEBUG_MODE -g<?end if?>
-<?if final?>CFLAGS += -O3<?end if?>
+# 2. Dependency Libraries and Linker Targets
+# Includes the runtime requirements for Apache Arrow, Parquet, and the C++ standard library
+LIBS    = -lm -larrow -lparquet -lstdc++
 
-# CXX Specific flags for our Parquet file
-CXXFLAGS = -std=c++17 -O3 -I$(LIBMBOARD_INC) ${DEFINES}
+# 3. Object Manifest Target Registry
+# Includes both the standard FLAME C outputs and the external C++ engine
+OBJS    = main.o \
+          memory.o \
+          low_io.o \
+          xml.o \
+          io.o \
+          rules.o \
+          parquet.o \
+          parquet_engine.o \
+          <?foreach xagent?>agent_<?value name?>.o <?endforeach?>
 
-LD      = <?if serial?>$(SERIAL_LOADER)<?end if?><?if parallel?>$(PARALLEL_LOADER)<?end if?>
+# 4. Primary Build Executable Pipeline Rule
+main: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o main
 
-LDFLAGS  = -L$(LIBMBOARD_LIB)
-<?if gsl_lib?>
-LIBS	+= -lgsl -lgslcblas
-<?end if?>
-LIBS    += <?if serial?>-lmboard_s<?if debug?>d<?end if?> <?end if?><?if parallel?>-lmboard_p<?if debug?>d<?end if?> <?end if?> -lm -larrow -lparquet
+# 5. Native Compilation Rules for Standard Core Source Files
+main.o: main.c header.h
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
-# FLAME source files (Includes both legacy XML and our new Parquet engine)
-FLAME   = main.c memory.c xml.c parquet.cpp messageboards.c partitioning.c rules.c timing.c
+memory.o: memory.c header.h
+	$(CC) $(CFLAGS) -c memory.c -o memory.o
 
-# FLAME auxiliary files
-AUX 	= stategraph.dot stategraph_colour.dot process_order_graph.dot Doxyfile latex.tex
+low_io.o: low_io.c header.h
+	$(CC) $(CFLAGS) -c low_io.c -o low_io.o
 
-# FLAME generated model files
-SOURCES = <?foreach functionfiles?> $filepath <?end foreach?>
-HEADERS = header.h low_primes.h mboard.h <?foreach xagent?> $name_agent_header.h <?end foreach?>
+xml.o: xml.c header.h
+	$(CC) $(CFLAGS) -c xml.c -o xml.o
 
-DEPS    = Makefile header.h low_primes.h
+io.o: io.c header.h
+	$(CC) $(CFLAGS) -c io.c -o io.o
 
-# Correctly maps source strings to object configurations dynamically
-OBJECTS = $(patsubst %.c,%.o,$(filter %.c,$(SOURCES) $(FLAME))) $(patsubst %.cpp,%.o,$(filter %.cpp,$(FLAME)))
-EXECUTABLE = main
-RM = rm -f
+rules.o: rules.c header.h
+	$(CC) $(CFLAGS) -c rules.c -o rules.o
 
-all: $(SOURCES) $(FLAME) $(EXECUTABLE)
+parquet.o: parquet.cpp header.h parquet_engine.h
+	$(CXX) $(CXXFLAGS) -c parquet.cpp -o parquet.o
 
-$(EXECUTABLE): $(OBJECTS)
-	$(LD) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
+# 6. Standalone Native C++ Apache Arrow Engine Compilation Target
+# This completely bypasses xparser to prevent unclosed template tag conflicts
+parquet_engine.o: parquet_engine.cpp parquet_engine.h
+	$(CXX) $(CXXFLAGS) -c parquet_engine.cpp -o parquet_engine.o
 
-$(OBJECTS): $(DEPS)
+# 7. Unrolled Template Rules Matrix for FLAME Agents
+<?foreach xagent?>
+agent_<?value name?>.o: agent_<?value name?>.c header.h
+	$(CC) $(CFLAGS) -c agent_<?value name?>.c -o agent_<?value name?>.o
+<?endforeach?>
 
-# Standard rule pattern for building pure C simulation models
-%.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
-
-# Standard rule pattern for building our C++ Parquet engine module
-%.o: %.cpp
-	$(CXX) -c $(CXXFLAGS) $< -o $@
-
+# 8. Clean Environment Utility Registry
 clean:
-	$(RM) $(OBJECTS) $(EXECUTABLE) $(EXECUTABLE).exe 
-vclean:
-	$(RM) main $(EXECUTABLE) $(EXECUTABLE).exe $(OBJECTS)  $(FLAME) $(HEADERS)  $(AUX) Makefile
-format:
-	astyle -A3 $(SOURCES)
-	for file in $(patsubst %.c,%.h, $(SOURCES)) ; do \
-		echo $$file ; \
-		astyle -A3 $$file ; \
-	done 
-print:
-	a2ps -R -f10 --column=1 $(SOURCES)
-	
+	rm -f *.o main parquet_output/*.parquet
