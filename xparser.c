@@ -273,19 +273,15 @@ int main(int argc, char * argv[])
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "Makefile.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
-    
-    /*
     strcpy(filename, directory);
     strcat(filename, "xml.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "xml.tmpl");
-    */
-
+    parseTemplate(filename, tmpl_name, modeldata);
     strcpy(filename, directory);
-    strcat(filename, "parquet.c");
+    strcat(filename, "parquet.cpp");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "parquet.tmpl");
-    
     parseTemplate(filename, tmpl_name, modeldata);
     strcpy(filename, directory);
     strcat(filename, "main.c");
