@@ -1,0 +1,239 @@
+/**
+ * \file parquet.tmpl
+ * \brief Generated code template to save agent states natively to Apache Parquet format.
+ * \note Automatically generated from the model definition by xparser.
+ */
+
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+#include <cstring>
+
+// Include the Apache Arrow and Parquet C++ APIs
+#include <arrow/api.h>
+#include <arrow/io/api.h>
+#include <parquet/arrow/writer.h>
+
+// Ensure C compatibility with the core FLAME engine structures
+extern "C" {
+    #include "header.h"
+}
+
+// =========================================================================
+// PARQUET HELPER FUNCTIONS (Equivalents to xml.tmpl static array functions)
+// =========================================================================
+
+/**
+ * \brief Appends a static C-style integer array into an Arrow ListBuilder.
+ * \note Equivalent to write_int_static_array from xml.tmpl
+ */
+inline void append_int_static_array(
+    std::shared_ptr<arrow::ListBuilder>& builder,
+    arrow::Int64Builder* value_builder,
+    const int* array_ptr,
+    int size)
+{
+    (void)builder->Append();
+    for (int i = 0; i < size; ++i) {
+        (void)value_builder->Append(array_ptr[i]);
+    }
+}
+
+/**
+ * \brief Appends a static C-style double array into an Arrow ListBuilder.
+ * \note Equivalent to write_float_static_array from xml.tmpl
+ */
+inline void append_double_static_array(
+    std::shared_ptr<arrow::ListBuilder>& builder,
+    arrow::DoubleBuilder* value_builder,
+    const double* array_ptr,
+    int size)
+{
+    (void)builder->Append();
+    for (int i = 0; i < size; ++i) {
+        (void)value_builder->Append(array_ptr[i]);
+    }
+}
+
+/**
+ * \brief Appends a static char array (C-string) into an Arrow StringBuilder.
+ * \note Equivalent to write_char_static_array from xml.tmpl.
+ * In Parquet, a static char array represents a single text string row.
+ */
+inline void append_char_static_array(
+    std::shared_ptr<arrow::StringBuilder>& builder,
+    const char* array_ptr,
+    int size)
+{
+    if (array_ptr != nullptr && size > 0) {
+        // Construct a safe bounded string ignoring trailing uninitialized garbage
+        std::string str_val(array_ptr, strnlen(array_ptr, size));
+        (void)builder->Append(str_val);
+    } else {
+        (void)builder->AppendNull();
+    }
+}
+
+
+// =========================================================================
+// INDIVIDUAL AGENT GENERATION TEMPLATE
+// =========================================================================
+
+/**
+ * \brief Saves the state of all active $AGENT_NAME agents into a single Parquet file.
+ * \param iteration_number The current simulation discrete time step.
+ */
+inline void save_$AGENT_NAME_parquet(int iteration_number)
+{
+    // 1. Build a clean filename string (e.g., "Firms_0023.parquet")
+    char filename[256];
+    snprintf(filename, sizeof(filename), "$AGENT_NAME_%04d.parquet", iteration_number);
+
+    // Get the head pointer of the specific agent population list
+    $AGENT_NAME * current_agent = get_$AGENT_NAME_agents();
+    
+    // If there are no active agents of this type, skip file creation entirely
+    if (current_agent == nullptr) {
+        return;
+    }
+
+    // 2. Initialize Apache Arrow Memory Builders for every variable in the agent schema
+    arrow::MemoryPool* pool = arrow::default_memory_pool();
+    
+    <?foreach variable?>
+    <?if is_scalar?>
+    // Builder for scalar variable: $VARIABLE_NAME
+    <?if is_int?>auto $VARIABLE_NAME_builder = std::make_shared<arrow::Int64Builder>(pool);<?end_if?>
+    <?if is_float?>auto $VARIABLE_NAME_builder = std::make_shared<arrow::DoubleBuilder>(pool);<?end_if?>
+    <?if is_string?>auto $VARIABLE_NAME_builder = std::make_shared<arrow::StringBuilder>(pool);<?end_if?>
+    <?end_if?>
+    
+    <?if is_array?>
+    // Builder for array variable: $VARIABLE_NAME
+    <?if is_int?>
+    auto $VARIABLE_NAME_value_builder = std::make_shared<arrow::Int64Builder>(pool);
+    auto $VARIABLE_NAME_builder = std::make_shared<arrow::ListBuilder>(pool, $VARIABLE_NAME_value_builder);
+    <?end_if?>
+    <?if is_float?>
+    auto $VARIABLE_NAME_value_builder = std::make_shared<arrow::DoubleBuilder>(pool);
+    auto $VARIABLE_NAME_builder = std::make_shared<arrow::ListBuilder>(pool, $VARIABLE_NAME_value_builder);
+    <?end_if?>
+    <?if is_char?>
+    auto $VARIABLE_NAME_builder = std::make_shared<arrow::StringBuilder>(pool);
+    <?end_if?>
+    <?end_if?>
+    <?end_foreach?>
+
+    // 3. Loop through the agent population and append row values to column builders
+    while (current_agent != nullptr)
+    {
+        <?foreach variable?>
+        <?if is_scalar?>
+        // Append scalar values safely
+        <?if is_string?>
+        if (current_agent->$VARIABLE_NAME != nullptr) {
+            (void)$VARIABLE_NAME_builder->Append(std::string(current_agent->$VARIABLE_NAME));
+        } else {
+            (void)$VARIABLE_NAME_builder->AppendNull();
+        }
+        <?end_if?>
+        <?if_not_string?>
+        (void)$VARIABLE_NAME_builder->Append(current_agent->$VARIABLE_NAME);
+        <?end_if?>
+        <?end_if?>
+        
+        <?if is_array?>
+        // Append array elements natively using matched standalone helpers
+        <?if is_int?>append_int_static_array($VARIABLE_NAME_builder, $VARIABLE_NAME_value_builder, current_agent->$VARIABLE_NAME, $ARRAY_SIZE);<?end_if?>
+        <?if is_float?>append_double_static_array($VARIABLE_NAME_builder, $VARIABLE_NAME_value_builder, current_agent->$VARIABLE_NAME, $ARRAY_SIZE);<?end_if?>
+        <?if is_char?>append_char_static_array($VARIABLE_NAME_builder, current_agent->$VARIABLE_NAME, $ARRAY_SIZE);<?end_if?>
+        <?end_if?>
+        <?end_foreach?>
+
+        current_agent = current_agent->next;
+    }
+
+    // 4. Finalize the builders into concrete, immutable Arrow Arrays
+    <?foreach variable?>
+    std::shared_ptr<arrow::Array> $VARIABLE_NAME_array;
+    (void)$VARIABLE_NAME_builder->Finish(&$VARIABLE_NAME_array);
+    <?end_foreach?>
+
+    // 5. Construct fields and schema vector sequentially to prevent trailing comma compilation bugs
+    std::vector<std::shared_ptr<arrow::Field>> schema_fields;
+    
+    <?foreach variable?>
+    schema_fields.push_back(arrow::field("$VARIABLE_NAME", 
+        <?if is_scalar?>
+            <?if is_int?>arrow::int64()<?end_if?>
+            <?if is_float?>arrow::float64()<?end_if?>
+            <?if is_string?>arrow::utf8()<?end_if?>
+        <?end_if?>
+        <?if is_array?>
+            <?if is_int?>arrow::list(arrow::int64())<?end_if?>
+            <?if is_float?>arrow::list(arrow::float64())<?end_if?>
+            <?if is_char?>arrow::utf8()<?end_if?>
+        <?end_if?>
+    ));
+    <?end_foreach?>
+
+    auto schema = arrow::schema(schema_fields);
+
+    // 6. Bundle the constructed columns together into an Arrow Record Table
+    auto table = arrow::Table::Make(schema, {
+        <?foreach variable?>
+        $VARIABLE_NAME_array,
+        <?end_foreach?>
+    });
+
+    // 7. Establish an atomic, high-speed binary file stream and write to disk
+    std::shared_ptr<arrow::io::FileOutputStream> outfile;
+    auto open_status = arrow::io::FileOutputStream::Open(filename, &outfile);
+    
+    if (!open_status.ok()) {
+        std::cerr << "Parquet file generation error: Failed to open output stream for file: " << filename 
+                  << "\nReason: " << open_status.message() << std::endl;
+        return;
+    }
+
+    // Set default row group configurations for Parquet chunks
+    auto writer_properties = parquet::WriterProperties::Builder()
+        .compression(parquet::Compression::SNAPPY) // Use fast Snappy compression
+        .build();
+
+    auto arrow_writer_properties = parquet::ArrowWriterProperties::Builder()
+        .store_schema() // Store schema metadata inside the file footer
+        .build();
+
+    // Perform the high-speed binary table dump
+    auto write_status = parquet::arrow::WriteTable(
+        *table, 
+        pool, 
+        outfile, 
+        100000, // Chunk size limit per row group
+        writer_properties, 
+        arrow_writer_properties
+    );
+
+    if (!write_status.ok()) {
+        std::cerr << "Parquet file generation error: Failed to commit Parquet binary data for iteration: " << iteration_number 
+                  << "\nReason: " << write_status.message() << std::endl;
+    }
+}
+
+
+// =========================================================================
+// MASTER ENTRY SAVE ROUTINE (Triggered via main.tmpl)
+// =========================================================================
+
+/**
+ * \brief Replaces the runtime text serialization layer. Iterates through 
+ * every registered agent type and triggers its column-oriented output loop.
+ */
+extern "C" void saveiterationdata_parquet(int iteration_number)
+{
+    <?foreach xagent?>
+    save_$AGENT_NAME_parquet(iteration_number);
+    <?end_foreach?>
+}
