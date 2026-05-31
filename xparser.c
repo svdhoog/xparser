@@ -268,6 +268,10 @@ int main(int argc, char * argv[])
         return 0;
     }
 
+    // Zero-initialize the entire buffer space
+    memset(filename, 0, sizeof(filename));
+    memset(tmpl_name, 0, sizeof(tmpl_name));
+
     strcpy(filename, directory);
     strcat(filename, "Makefile");
     strcpy(tmpl_name, tmpl_directory);

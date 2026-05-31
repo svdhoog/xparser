@@ -15,6 +15,9 @@ void parquet_buffer_variable(const char* agent_name, const char* var_name, doubl
 void parquet_clear_buffer(const char* agent_name);
 void parquet_write_file(const char* agent_name, int iteration);
 
+// Save iteration data to parquet
+void saveiterationdata_parquet(int iteration_no);
+
 #ifdef __cplusplus
 }
 #endif

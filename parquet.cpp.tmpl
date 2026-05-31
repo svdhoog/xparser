@@ -5,11 +5,15 @@
 void write_parquet_data_$name(int iteration_no) {
     parquet_clear_buffer("$name");
 
-    // Cast generic FLAME node agent array memory to this specific agent type
-    current_xmachine_$name = (xmachine_memory_$name *)(*current_node).agents;
-    while(current_xmachine_$name != NULL) {
+    // Fix: Explicitly cast the generic xmachine* pointer to the specific agent holder type
+    struct xmachine_memory_$name_holder *current_holder = (struct xmachine_memory_$name_holder *)(*current_node).agents;
+    
+    while(current_holder != NULL) {
         
-        long agent_id = (long)(*current_xmachine_$name).id;
+        // Extract the actual agent structure from the active holder node
+        current_xmachine_$name = current_holder->agent;
+        
+        long agent_id = (long)current_xmachine_$name->id;
 
         // Register the row context once for this specific agent instance
         parquet_start_row("$name", iteration_no, agent_id);
@@ -19,14 +23,29 @@ void write_parquet_data_$name(int iteration_no) {
         parquet_buffer_variable(
             "$agent_name", 
             "$name", 
-            (double)(*current_xmachine_$agent_name).$name
+            (double)current_xmachine_$agent_name->$name
         );
         <?end foreach?>
         
-        // Advance to next agent in the linked list
-        current_xmachine_$name = (xmachine_memory_$name *)(*current_xmachine_$name).next_$name;
+        // Advance to the next holder element in the linked list
+        current_holder = current_holder->next;
     }
 
     parquet_write_file("$name", iteration_no);
 }
 <?end foreach?>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void saveiterationdata_parquet(int iteration_no) {
+    // Dynamically trigger the write function for every agent defined in the model
+    <?foreach xagent?>
+    write_parquet_data_$name(iteration_no);
+    <?end foreach?>
+}
+
+#ifdef __cplusplus
+}
+#endif
