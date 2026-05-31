@@ -10,7 +10,8 @@ LIBMBOARD_LIB = $(LIBMBOARD_DIR)/lib
 # 1. Compiler and Tool Chain Configurations
 CC      = gcc
 CXX     = g++
-CFLAGS  = -Wall -O3 -std=c11
+CFLAGS  =  -I$(LIBMBOARD_INC) ${DEFINES} -fcommon
+CFLAGS  += -Wall -O3 -std=c11
 CXXFLAGS = -Wall -O3 -std=c++17
 
 # 2. Dependency Libraries and Linker Targets
@@ -21,13 +22,11 @@ LIBS    = -lm -larrow -lparquet -lstdc++
 # Includes both the standard FLAME C outputs and the external C++ engine
 OBJS    = main.o \
           memory.o \
-          low_io.o \
           xml.o \
-          io.o \
           rules.o \
           parquet.o \
           parquet_engine.o \
-          <?foreach xagent?>agent_<?value name?>.o <?end foreach?>
+          <?foreach xagent?>agent_$name.o <?end foreach?>
 
 # 4. Primary Build Executable Pipeline Rule
 main: $(OBJS)
@@ -40,14 +39,8 @@ main.o: main.c header.h
 memory.o: memory.c header.h
 	$(CC) $(CFLAGS) -c memory.c -o memory.o
 
-low_io.o: low_io.c header.h
-	$(CC) $(CFLAGS) -c low_io.c -o low_io.o
-
 xml.o: xml.c header.h
 	$(CC) $(CFLAGS) -c xml.c -o xml.o
-
-io.o: io.c header.h
-	$(CC) $(CFLAGS) -c io.c -o io.o
 
 rules.o: rules.c header.h
 	$(CC) $(CFLAGS) -c rules.c -o rules.o
@@ -62,10 +55,11 @@ parquet_engine.o: parquet_engine.cpp parquet_engine.h
 
 # 7. Unrolled Template Rules Matrix for FLAME Agents
 <?foreach xagent?>
-agent_<?value name?>.o: agent_<?value name?>.c header.h
-	$(CC) $(CFLAGS) -c agent_<?value name?>.c -o agent_<?value name?>.o
+agent_$name.o: agent_$name.c header.h
+	$(CC) $(CFLAGS) -c agent_$name.c -o agent_$name.o
 <?end foreach?>
 
 # 8. Clean Environment Utility Registry
 clean:
-	rm -f *.o main parquet_output/*.parquet
+	rm -f *.o main 
+	
