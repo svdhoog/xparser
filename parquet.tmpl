@@ -1,36 +1,23 @@
 #include "header.h"
 #include "parquet_engine.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 <?foreach xagent?>
-void write_parquet_data_<?value name?>(int iteration_no) {
-    // Clear any existing stale tracking allocations
-    parquet_clear_buffer("<?value name?>");
+void write_parquet_data_$name(int iteration_no) {
+    parquet_clear_buffer("$name");
 
-    // Loop directly through the agent link chain 
-    current_xmachine_<?value name?> = * current_node_<?value name?>->xmachine_<?value name?>;
-    while(current_xmachine_<?value name?> != NULL) {
+    current_xmachine_$name = (*current_node_$name).xmachine_$name;
+    while(current_xmachine_$name != NULL) {
         
-        // Forward row variable states down to the external C++ buffering arrays
-        // Note: Change 'id' or 'value' to match actual memory names in your model.xml
         parquet_buffer_row(
-            "<?value name?>", 
+            "$name", 
             iteration_no, 
-            (long)current_xmachine_<?value name?>->id, 
-            (double)current_xmachine_<?value name?>->value
+            (long)(*current_xmachine_$name).id, 
+            (double)(*current_xmachine_$name).value
         );
         
-        current_xmachine_<?value name?> = current_xmachine_<?value name?>->next;
+        current_xmachine_$name = (*current_xmachine_$name).next;
     }
 
-    // Seal and commit files safely to disk memory
-    parquet_write_file("<?value name?>", iteration_no);
+    parquet_write_file("$name", iteration_no);
 }
-<?endforeach?>
-
-#ifdef __cplusplus
-}
-#endif
+<?end foreach?>

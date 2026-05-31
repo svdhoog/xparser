@@ -273,62 +273,72 @@ int main(int argc, char * argv[])
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "Makefile.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+
     strcpy(filename, directory);
     strcat(filename, "xml.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "xml.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "main.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "main.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "header.h");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "header.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "memory.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "memory.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+
+    /* Parquet related */
+/*    strcpy(filename, directory);
+    strcat(filename, "parquet.cpp");
+    strcpy(tmpl_name, tmpl_directory);
+    strcat(tmpl_name, "parquet.tmpl");
+    parseTemplate(filename, tmpl_name, modeldata);
+*/
     strcpy(filename, directory);
     strcat(filename, "low_primes.h");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "low_primes.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "messageboards.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "messageboards.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "partitioning.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "partitioning.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "timing.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "timing.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "Doxyfile");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "Doxyfile.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
+    
     strcpy(filename, directory);
     strcat(filename, "rules.c");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "rules.tmpl");
-    parseTemplate(filename, tmpl_name, modeldata);
-
-    /* Parquet */
-    strcpy(filename, directory);
-    strcat(filename, "parquet.cpp");
-    strcpy(tmpl_name, tmpl_directory);
-    strcat(tmpl_name, "parquet.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
 
     printf("\n");

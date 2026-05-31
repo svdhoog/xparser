@@ -618,7 +618,7 @@ void clean_up(int code)
 {
     int rc;
 	FILE *file;
-	char data[100];
+	char data[1000];
 
 	free(current_xmachine);
 	/* Free x-machine memory */
@@ -709,7 +709,18 @@ void clean_up(int code)
 		{
 <?end if?>
 	/* Write log file */
-	sprintf(data, "%slog.xml", outputpath);
+	// Check if outputpath leaves enough room for "log.xml" (7 bytes) + null terminator (1 byte)
+	if (strlen(outputpath) + 8 > sizeof(data)) {
+	    fprintf(stderr, "Error: outputpath is too long for the log file path buffer.\n");
+	    // Handle the error gracefully (e.g., return, exit, or fall back)
+	    exit(0); 
+	}
+	// GCC now knows this snprintf will never truncate, still we use pragma's to shut up the compiler
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+	snprintf(data, sizeof(data), "%slog.xml", outputpath); /* use snprintf to protect against overflow */
+	#pragma GCC diagnostic pop
+
 	file = fopen(data, "a");
 	fputs("<!-- <totaltime> unit: seconds -->\n", file);
 	fputs("<totaltime>", file);

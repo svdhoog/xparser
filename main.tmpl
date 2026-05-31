@@ -415,12 +415,23 @@ if(argc < 2)
 <?if parallel?>	if(node_number == 0)
 	{<?end if?>
 	/* Write log file */
-	sprintf(logfilepath, "%slog.xml", outputpath);
+	// Check if outputpath leaves enough room for "log.xml" (7 bytes) + null terminator (1 byte)
+	if (strlen(outputpath) + 8 > sizeof(logfilepath)) {
+	    fprintf(stderr, "Error: outputpath is too long for the log file path buffer.\n");
+	    // Handle the error gracefully (e.g., return, exit, or fall back)
+	    exit(0); 
+	}
+	// GCC now knows this snprintf will never truncate, still we use pragma's to shut up the compiler
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wformat-truncation"
+	snprintf(logfilepath, sizeof(logfilepath), "%slog.xml", outputpath); /* use snprintf to protect against overflow */
+	#pragma GCC diagnostic pop
 	if((file = fopen(logfilepath, "w"))==NULL)
 	{
 		printf("Error: cannot open file '%s' for writing\n", logfilepath);
 		exit(0);
 	}
+
 	(void)fputs("<model_run>\n", file);
 	(void)fputs("<codetype>", file);
 <?if serial?>	(void)fputs("serial", file);<?end if?>
