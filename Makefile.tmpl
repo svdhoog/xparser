@@ -22,7 +22,7 @@ OBJS    = main.o \
           rules.o \
           parquet.o \
           parquet_engine.o \
-          <?foreach xagent?>agent_<?value name?>.o <?endforeach?>
+          <?foreach xagent?>agent_<?value name?>.o <?end foreach?>
 
 # 4. Primary Build Executable Pipeline Rule
 main: $(OBJS)
@@ -59,7 +59,7 @@ parquet_engine.o: parquet_engine.cpp parquet_engine.h
 <?foreach xagent?>
 agent_<?value name?>.o: agent_<?value name?>.c header.h
 	$(CC) $(CFLAGS) -c agent_<?value name?>.c -o agent_<?value name?>.o
-<?endforeach?>
+<?end foreach?>
 
 # 8. Clean Environment Utility Registry
 clean:

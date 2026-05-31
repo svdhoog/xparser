@@ -299,12 +299,12 @@ int main(int argc, char * argv[])
     parseTemplate(filename, tmpl_name, modeldata);
 
     /* Parquet related */
-/*    strcpy(filename, directory);
+    strcpy(filename, directory);
     strcat(filename, "parquet.cpp");
     strcpy(tmpl_name, tmpl_directory);
     strcat(tmpl_name, "parquet.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
-*/
+
     strcpy(filename, directory);
     strcat(filename, "low_primes.h");
     strcpy(tmpl_name, tmpl_directory);
