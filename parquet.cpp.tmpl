@@ -1,0 +1,32 @@
+#include "header.h"
+#include "parquet_engine.h"
+
+<?foreach xagent?>
+void write_parquet_data_$name(int iteration_no) {
+    parquet_clear_buffer("$name");
+
+    // Cast generic FLAME node agent array memory to this specific agent type
+    current_xmachine_$name = (xmachine_memory_$name *)(*current_node).agents;
+    while(current_xmachine_$name != NULL) {
+        
+        long agent_id = (long)(*current_xmachine_$name).id;
+
+        // Register the row context once for this specific agent instance
+        parquet_start_row("$name", iteration_no, agent_id);
+
+        // Dynamically unroll and pass every single model variable definition
+        <?foreach xagentvar?>
+        parquet_buffer_variable(
+            "$agent_name", 
+            "$name", 
+            (double)(*current_xmachine_$agent_name).$name
+        );
+        <?end foreach?>
+        
+        // Advance to next agent in the linked list
+        current_xmachine_$name = (xmachine_memory_$name *)(*current_xmachine_$name).next_$name;
+    }
+
+    parquet_write_file("$name", iteration_no);
+}
+<?end foreach?>

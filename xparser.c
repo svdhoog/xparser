@@ -302,7 +302,20 @@ int main(int argc, char * argv[])
     strcpy(filename, directory);
     strcat(filename, "parquet.cpp");
     strcpy(tmpl_name, tmpl_directory);
-    strcat(tmpl_name, "parquet.tmpl");
+    strcat(tmpl_name, "parquet.cpp.tmpl");
+    parseTemplate(filename, tmpl_name, modeldata);
+
+    strcpy(filename, directory);
+    strcat(filename, "parquet_engine.h");
+    strcpy(tmpl_name, tmpl_directory);
+    strcat(tmpl_name, "parquet_engine.h.tmpl");
+    parseTemplate(filename, tmpl_name, modeldata);
+
+    /* Optional: Have xparser generate the engine source file too */
+    strcpy(filename, directory);
+    strcat(filename, "parquet_engine.cpp");
+    strcpy(tmpl_name, tmpl_directory);
+    strcat(tmpl_name, "parquet_engine.cpp.tmpl");
     parseTemplate(filename, tmpl_name, modeldata);
 
     strcpy(filename, directory);
