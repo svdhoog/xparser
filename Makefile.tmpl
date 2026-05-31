@@ -1,65 +1,97 @@
-# --------------------------------------------------------------------------
+# ==========================================================================
 # FLAME AUTOMATED GENERATION MAKEFILE TEMPLATE WITH PARQUET SERIALIZATION
-# --------------------------------------------------------------------------
+# ==========================================================================
 
-# Change this variable for the location of the Message Board Library installation
+# Message Board Library paths
 LIBMBOARD_DIR = /home/sander/build/libmboard
 LIBMBOARD_INC = $(LIBMBOARD_DIR)/include
 LIBMBOARD_LIB = $(LIBMBOARD_DIR)/lib
 
-# 1. Compiler and Tool Chain Configurations
-CC      = gcc
-CXX     = g++
-CFLAGS  =  -I$(LIBMBOARD_INC) ${DEFINES} -fcommon
-CFLAGS  += -Wall -O3 -std=c11
-CXXFLAGS = -Wall -O3 -std=c++17
+# Compilers and Loaders (Using C++ Linker to support Apache Arrow hooks)
+SERIAL_CCOMP    = gcc
+PARALLEL_CCOMP  = mpicc
+SERIAL_LOADER   = g++
+PARALLEL_LOADER = mpicxx
 
-# 2. Dependency Libraries and Linker Targets
-# Includes the runtime requirements for Apache Arrow, Parquet, and the C++ standard library
-LIBS    = -lm -larrow -lparquet -lstdc++
+# Feature Flags
+DEFINES         =
+<?if gsl_lib?>DEFINES        += -DGSL_LIB<?end if?>
 
-# 3. Object Manifest Target Registry
-# Includes both the standard FLAME C outputs and the external C++ engine
-OBJS    = main.o \
-          memory.o \
-          xml.o \
-          rules.o \
-          parquet.o \
-          parquet_engine.o \
-          <?foreach xagent?>agent_$name.o <?end foreach?>
+# Toolchain Assignment
+CC       = <?if serial?>$(SERIAL_CCOMP)<?end if?><?if parallel?>$(PARALLEL_CCOMP)<?end if?>
+CXX      = g++
+LD       = <?if serial?>$(SERIAL_LOADER)<?end if?><?if parallel?>$(PARALLEL_LOADER)<?end if?>
 
-# 4. Primary Build Executable Pipeline Rule
-main: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o main
+# Compilation Flags
+CFLAGS   = -I$(LIBMBOARD_INC) $(DEFINES) -fcommon -Wall
+CXXFLAGS = -I$(LIBMBOARD_INC) $(DEFINES) -Wall -std=c++17
 
-# 5. Native Compilation Rules for Standard Core Source Files
-main.o: main.c header.h
-	$(CC) $(CFLAGS) -c main.c -o main.o
+<?if debug?>
+CFLAGS   += -std=c11 -D_DEBUG_MODE -g
+CXXFLAGS += -D_DEBUG_MODE -g
+<?end if?>
 
-memory.o: memory.c header.h
-	$(CC) $(CFLAGS) -c memory.c -o memory.o
+<?if final?>
+CFLAGS   += -O3
+CXXFLAGS += -O3
+<?end if?>
 
-xml.o: xml.c header.h
-	$(CC) $(CFLAGS) -c xml.c -o xml.o
+LDFLAGS  = -L$(LIBMBOARD_LIB)
 
-rules.o: rules.c header.h
-	$(CC) $(CFLAGS) -c rules.c -o rules.o
+# Library Dependencies (Standard FLAME + Apache Arrow ecosystem)
+LIBS     = <?if serial?>-lmboard_s<?if debug?>d<?end if?> <?end if?><?if parallel?>-lmboard_p<?if debug?>d<?end if?> <?end if?> -lm
+LIBS    += -larrow -lparquet -lstdc++
+<?if gsl_lib?>LIBS    += -lgsl -lgslcblas<?end if?>
 
-parquet.o: parquet.cpp header.h parquet_engine.h
-	$(CXX) $(CXXFLAGS) -c parquet.cpp -o parquet.o
+# FLAME Source manifests
+FLAME    = main.c memory.c xml.c messageboards.c partitioning.c rules.c timing.c
+AUX      = stategraph.dot stategraph_colour.dot process_order_graph.dot Doxyfile latex.tex
 
-# 6. Standalone Native C++ Apache Arrow Engine Compilation Target
-# This completely bypasses xparser to prevent unclosed template tag conflicts
-parquet_engine.o: parquet_engine.cpp parquet_engine.h
-	$(CXX) $(CXXFLAGS) -c parquet_engine.cpp -o parquet_engine.o
+# Dynamic Model Manifests (Parsed dynamically by xparser)
+SOURCES  = <?foreach functionfiles?> $filepath <?end foreach?>
+HEADERS  = header.h low_primes.h mboard.h <?foreach xagent?> $name_agent_header.h <?end foreach?>
 
-# 7. Unrolled Template Rules Matrix for FLAME Agents
-<?foreach xagent?>
-agent_$name.o: agent_$name.c header.h
-	$(CC) $(CFLAGS) -c agent_$name.c -o agent_$name.o
-<?end foreach?>
+# External Parquet Tracking System Engine Code
+PARQUET_SRC = parquet.cpp parquet_engine.cpp
 
-# 8. Clean Environment Utility Registry
+# Dependencies Tracker
+DEPS     = Makefile header.h low_primes.h parquet_engine.h
+
+# Unified Object target arrays derived from source collections
+OBJECTS  = $(SOURCES:.c=.o) $(FLAME:.c=.o) $(PARQUET_SRC:.cpp=.o)
+EXECUTABLE = main
+RM       = rm -f
+
+# Pipeline Execution Targets
+all: $(SOURCES) $(FLAME) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(LD) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBS)
+
+$(OBJECTS): $(DEPS)
+
+# Structural Suffix Processing Patterns
+.c.o:
+	$(CC) -c $(CFLAGS) $< -o $@
+
+.cpp.o:
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+# Cleanup Framework Operations
 clean:
-	rm -f *.o main 
+	$(RM) $(OBJECTS) $(EXECUTABLE) $(EXECUTABLE).exe
+
+vclean:
+	$(RM) main $(EXECUTABLE) $(EXECUTABLE).exe $(OBJECTS) $(FLAME) $(HEADERS) $(AUX) Makefile
+
+format:
+	astyle -A3 $(SOURCES)
+	for file in $(patsubst %.c,%.h, $(SOURCES)) ; \
+	do \
+		echo $$file ; \
+		astyle -A3 $$file ; \
+	done 
+
+print:
+	a2ps -R -f10 --column=1 $(SOURCES)
 	
