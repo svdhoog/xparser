@@ -980,14 +980,15 @@ if(FLAME_$name_message_board_read == 0)
     #endif
 <?end foreach?>
 <?end foreach?>
-	if(iteration_loop%output_frequency == output_offset)
+/*	if(iteration_loop%output_frequency == output_offset)
 	{
 		//XML output
-		//saveiterationdata_xml(iteration_loop); 
+		saveiterationdata(iteration_loop); 
 		
 		//Parquet output
 		saveiterationdata_parquet(iteration_loop);
 	}
+*/
 <?foreach xagent?><?foreach state?>
 	/*printf("$agent_name_$name_state->count = %d\n", $agent_name_$name_state->count);*/
 	$agent_name_$name_state->count = 0;
@@ -1012,7 +1013,7 @@ if(FLAME_$name_message_board_read == 0)
 		}
 
 		//XML output
-		//saveiterationdata_xml(iteration_loop); 
+		saveiterationdata(iteration_loop); 
 		
 		//Parquet output
 		saveiterationdata_parquet(iteration_loop);
